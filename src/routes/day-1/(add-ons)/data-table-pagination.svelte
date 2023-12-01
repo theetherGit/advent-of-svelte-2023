@@ -17,8 +17,7 @@
 
 <div class="grid gap-y-2 md:flex md:items-center md:justify-between p-2">
     <div class="hidden md:block flex-1 text-sm text-muted-foreground">
-        {Object.keys($selectedDataIds).length} of{' '}
-        {$rows.length} row(s) selected.
+        Total Children(s): {$rows.length}
     </div>
     <div class="grid gap-y-2 md:flex md:items-center md:space-x-6 lg:space-x-8">
         <div class="grid gap-y-2 md:flex items-center justify-center space-x-2">

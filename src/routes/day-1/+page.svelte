@@ -183,7 +183,7 @@
     </div>
     <div class="px-5 w-full">
         <div class="space-x-4 rounded-lg border">
-            <div class="border-b space-x-2 p-2">
+            <div class="border-b p-2">
                 <div class="grid gap-y-2 md:flex md:items-center md:justify-between">
                     <div class="grid grid-cols-2 gap-y-2 md:flex md:flex-1 md:items-center md:space-x-2">
                         <Input
