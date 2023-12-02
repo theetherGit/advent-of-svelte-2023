@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { cubicOut } from "svelte/easing";
 import type { TransitionConfig } from "svelte/transition";
+import DayOne from '$lib/assets/day-1.png';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -60,3 +61,16 @@ export const flyAndScale = (
         easing: cubicOut
     };
 };
+
+type AoS = {
+    day: number,
+    title: string,
+    previewImage: string,
+    details: string,
+    source: string,
+    preview: string
+}
+
+export const aosDetails: AoS[] = [
+    {title: 'Elves Tally', day: 1, previewImage: DayOne, details: '', source: '', preview: ''}
+];

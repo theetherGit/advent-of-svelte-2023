@@ -11,8 +11,6 @@
     const { pageRows, pluginStates, rows } = tableModel;
 
     const { hasNextPage, hasPreviousPage, pageIndex, pageCount, pageSize } = pluginStates.page;
-
-    const { selectedDataIds } = pluginStates.select;
 </script>
 
 <div class="grid gap-y-2 md:flex md:items-center md:justify-between p-2">
