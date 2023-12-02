@@ -130,7 +130,7 @@
 
 </script>
 
-<div class="flex flex-col items-center max-w-7xl mx-auto my-5 space-y-4 w-full">
+<div class="flex flex-col items-center my-5 space-y-4">
     <div class="w-full grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 px-5">
         <Card.Root>
             <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
