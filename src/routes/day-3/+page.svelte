@@ -38,8 +38,6 @@
         }
     };
 
-    console.log(data.childrens);
-
     function createTrip() {
         tripCount += 1;
         const oldTrips = {...trips};
