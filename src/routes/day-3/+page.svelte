@@ -200,7 +200,7 @@
                                 {/each}
                             </Select.Content>
                         </Select.Root>
-                        <Button on:click={createTrip} variant="secondary" class="w-full">Solve it System!!</Button>
+                        <Button disabled on:click={createTrip} variant="secondary" class="w-full">Solve it System!!</Button>
                     </Card.Content>
             </Card.Root>
         {#each Object.entries(trips) as [id, {name, weight, children}]}
