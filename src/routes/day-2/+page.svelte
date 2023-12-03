@@ -10,6 +10,7 @@
 
     let lottieSantaLeft;
     let lottieSantaRight;
+    let lottieCounter;
 
     let counter = 0;
     $: animationToLoad = chooseAnimation(counter);
@@ -36,7 +37,7 @@
 	    if (compare !== current || counter === 0) {
 		    lottie.destroy('counter');
 		    lottie.loadAnimation({
-			    container: document.getElementById('lottie')!,
+			    container: lottieCounter,
 			    animationData: animationToUse,
                 name: 'counter',
 			    loop: true,
@@ -59,7 +60,7 @@
 	    counter = 0;
         lottie.destroy('counter');
         const animation = lottie.loadAnimation({
-            container: document.getElementById('lottie')!,
+            container: lottieCounter,
             name: 'counter',
             animationData: FarterSantaJson,
             loop: false,
@@ -84,7 +85,7 @@
 		    autoplay: true
 	    });
         lottie.loadAnimation({
-            container: document.getElementById('lottie')!,
+            container: lottieCounter,
             name: 'counter',
             animationData: animationToLoad,
             loop: true,
@@ -114,7 +115,7 @@
             {/if}
         </section>
 
-        <section id="lottie" class="w-48 h-48 flex gap-4"></section>
+        <section bind:this={lottieCounter} id="lottie" class="w-48 h-48 flex gap-4"></section>
 
         <section class="flex gap-2">
             <Button on:click={buttonIncrementHandler}> + Eat Cookie </Button>
