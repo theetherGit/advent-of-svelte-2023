@@ -2,7 +2,7 @@ import type {PageLoad} from "./$types";
 
 async function getElvesTallyData(fetch) {
     try {
-        const response = await fetch('https://advent.sveltesociety.dev/data/2023/day-one.json');
+        const response = await fetch('https://advent.sveltesociety.dev/data/2023/day-three.json');
         if (response.ok) {
             return response.json()
         }
