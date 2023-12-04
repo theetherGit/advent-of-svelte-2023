@@ -56,9 +56,19 @@
         tripCount -= 1;
 
         const oldTrips = {...trips};
+        $children_store = [...$children_store, ...oldTrips[tripId].children]
+
         delete oldTrips[tripId];
 
         trips = {...oldTrips}
+    }
+
+    function deleteWeightFromTrip(tripId: number, child: DataChild) {
+        const currentTrip = trips[tripId];
+        const newChildrenDataTrip = currentTrip.children.filter((c: DataChild) => c.name != child.name);
+        $children_store = [...$children_store, child];
+        currentTrip["children"] = newChildrenDataTrip;
+        trips[tripId] = currentTrip;
     }
 
     function addToTrip(rowData: DataChild) {
@@ -149,7 +159,7 @@
                 <Weight class="h-4 w-4 text-green-500" />
             </Card.Header>
             <Card.Content>
-                <div class="text-2xl font-bold">{total_weight}</div>
+                <div class="text-2xl font-bold">{new Intl.NumberFormat('en-In', {maximumFractionDigits: 2}).format(total_weight)}</div>
                 <p class="text-xs text-muted-foreground">
                     Total Weight of gifts for the children.
                 </p>
@@ -282,6 +292,7 @@
                 <DataTablePagination {tableModel} />
             </div>
         </div>
+
         <div class="border rounded-lg">
             <Accordion.Root value={currentSelectedTrip.toString()}>
                 {#each Object.entries(trips) as [id, {name, weight, children}]}
@@ -291,7 +302,7 @@
                             <div class="flex items-center justify-between">
                                 {#if children.length}
                                     <Table.Root>
-                                        <Table.Caption>Total Weight in {name}: {new Intl.NumberFormat('en-In', {maximumFractionDigits: 1}).format(weight)} Kg</Table.Caption>
+                                        <Table.Caption>Total Weight in {name}: {new Intl.NumberFormat('en-In', {maximumFractionDigits: 2}).format(weight)} Kg</Table.Caption>
                                         <Table.Header>
                                             <Table.Row>
                                                 <Table.Head>Name</Table.Head>
@@ -303,6 +314,11 @@
                                             <Table.Row class="gap-y-2.5">
                                                 <Table.Cell>{child.name}</Table.Cell>
                                                 <Table.Cell>{child.weight}</Table.Cell>
+                                                <Table.Cell class="flex items-center justify-end">
+                                                    <Button on:click={() => deleteWeightFromTrip(Number(id), child)} class="flex items-center space-x-4" variant="ghost" size="icon">
+                                                        <Trash2 class="text-destructive"/>
+                                                    </Button>
+                                                </Table.Cell>
                                             </Table.Row>
                                         {/each}
                                     </Table.Root>
