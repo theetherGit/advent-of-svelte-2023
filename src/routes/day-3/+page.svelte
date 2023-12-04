@@ -19,51 +19,57 @@
     import * as Select from '$lib/components/ui/select';
     import * as Accordion from "$lib/components/ui/accordion";
     import {toast} from "sonner-svelte";
+    import {generateRandomString, groupedKnapsack} from "./(add-ons)/utils";
 
     export let data: PageData;
-
-    let tripCount = 1;
-    let currentSelectedTrip = 1;
-    let selectedCreatingBecauseIDK = { value: currentSelectedTrip, label: `Trip ${currentSelectedTrip}` }
 
     const children_store = writable(data.childrens);
 
     $: total_weight = data.childrens.reduce((total, child) => total + child.weight, 0);
 
-    let trips: Record<string, TripData> = {
-        1: {
-            name: 'Trip 1',
-            weight: 0,
-            children: []
-        }
+    let trips: Record<string, TripData> = {};
+
+    let tripCount = 1;
+    let currentSelectedTrip = generateRandomString(10);
+    trips[currentSelectedTrip] = {
+        name: 'Trip 1',
+        weight: 0,
+        children: []
     };
+
+    let selectedCreatingBecauseIDK = { value: currentSelectedTrip, label: trips[currentSelectedTrip].name };
 
     function createTrip() {
         tripCount += 1;
         const oldTrips = {...trips};
+        currentSelectedTrip = generateRandomString(10);
 
-        oldTrips[tripCount] = {
+        oldTrips[currentSelectedTrip] = {
             name: `Trip ${tripCount}`,
             weight: 0,
             children: []
         };
         trips = {...oldTrips};
-        currentSelectedTrip = tripCount;
-        selectedCreatingBecauseIDK = { value: currentSelectedTrip, label: `Trip ${currentSelectedTrip}` }
+        selectedCreatingBecauseIDK = { value: currentSelectedTrip, label: trips[currentSelectedTrip].name }
     }
 
-    function deleteTrip(tripId: number) {
+    function deleteTrip(tripId: string) {
+        if (tripCount < 2) return toast.info('One trip is required.');
+
         tripCount -= 1;
 
+        if (tripId === currentSelectedTrip) return toast.warning('You can not delete currently selected trip.');
+
         const oldTrips = {...trips};
-        $children_store = [...$children_store, ...oldTrips[tripId].children]
+        console.log(oldTrips[tripId], tripId);
+        $children_store = [...$children_store, ...oldTrips[tripId].children];
 
         delete oldTrips[tripId];
 
         trips = {...oldTrips}
     }
 
-    function deleteWeightFromTrip(tripId: number, child: DataChild) {
+    function deleteWeightFromTrip(tripId: string, child: DataChild) {
         const currentTrip = trips[tripId];
         const newChildrenDataTrip = currentTrip.children.filter((c: DataChild) => c.name != child.name);
         $children_store = [...$children_store, child];
@@ -79,6 +85,34 @@
         trips[currentSelectedTrip]["weight"] = checkWeight;
         $children_store = $children_store.filter((child: DataChild) => child.name != rowData.name);
         trips[currentSelectedTrip]["children"] = [...trips[currentSelectedTrip]["children"], rowData];
+    }
+
+
+    function changeByAccordion(value) {
+        if (value) {
+            currentSelectedTrip = value;
+            if (trips[currentSelectedTrip]) selectedCreatingBecauseIDK = { value: currentSelectedTrip, label: trips[currentSelectedTrip].name ?? '' }
+        }
+    }
+
+    function slbForAllUsingGreed() {
+        const grouped = groupedKnapsack($children_store, 100);
+        if (grouped.length) {
+            const allTrips: Record<string, TripData> = {};
+            tripCount = 0;
+            grouped.forEach((group) => {
+                currentSelectedTrip = generateRandomString(10);
+                tripCount += 1;
+                allTrips[currentSelectedTrip] = {
+                    name: `Trip ${tripCount}`,
+                    children: group.childs,
+                    weight: group.totalWeight
+                }
+            });
+            trips = allTrips;
+            $children_store = [];
+            selectedCreatingBecauseIDK = {label: trips[currentSelectedTrip].name, value: currentSelectedTrip}
+        }
     }
 
     const table = createTable(children_store, {
@@ -191,12 +225,12 @@
         </Card.Root>
     </div>
 
-    <div class="flex items-center overflow-y-auto no-scrollbar gap-x-5">
+    <div class="flex items-center overflow-y-auto no-scrollbar gap-x-5 snap-start">
             <Card.Root class="min-w-[200px] md:min-w-[300px] h-full p-4">
                     <Card.Content class="grid gap-y-2.5">
                         <Button on:click={createTrip} class="w-full">Create Trip</Button>
                         <Select.Root
-                                onSelectedChange={(selected) => currentSelectedTrip = Number(selected?.value)}
+                                onSelectedChange={(selected) => currentSelectedTrip = selected?.value}
                                 selected={selectedCreatingBecauseIDK}
                         >
                             <Select.Trigger class="w-full">
@@ -208,11 +242,11 @@
                                 {/each}
                             </Select.Content>
                         </Select.Root>
-                        <Button disabled on:click={createTrip} variant="secondary" class="w-full">Solve it System!!</Button>
+                        <Button on:click={slbForAllUsingGreed} variant="secondary" class="w-full">Solve it System!!</Button>
                     </Card.Content>
             </Card.Root>
         {#each Object.entries(trips) as [id, {name, weight, children}]}
-            <Card.Root class="min-w-[250px] md:min-w-[300px] {currentSelectedTrip === Number(id) ? 'border-primary': weight > 90 ? 'border-destructive' : ''}">
+            <Card.Root class="min-w-[250px] md:min-w-[300px] {currentSelectedTrip === id ? 'border-primary': weight > 90 ? 'border-destructive' : ''}">
                 <Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
                     <Card.Title class="text-sm font-medium">{name}</Card.Title>
                     <Luggage class="h-4 w-4 text-primary" />
@@ -224,8 +258,8 @@
                     </p>
                 </Card.Content>
                 <Card.Footer class="grid grid-cols-2 gap-x-2">
-                    <Button on:click={() => (currentSelectedTrip = Number(id))} class="w-full flex items-center gap-x-2" variant="warning"><Pen class="w-4 h-4"/> Update</Button>
-                    <Button on:click={() => deleteTrip(Number(id))} class="w-full flex items-center gap-x-2" variant="destructive"><Trash2 class="w-4 h-4"/> Delete</Button>
+                    <Button on:click={() => (currentSelectedTrip = id)} class="w-full flex items-center gap-x-2" variant="warning"><Pen class="w-4 h-4"/> Update</Button>
+                    <Button on:click={() => deleteTrip(id)} class="w-full flex items-center gap-x-2" variant="destructive"><Trash2 class="w-4 h-4"/> Delete</Button>
                 </Card.Footer>
             </Card.Root>
         {/each}
@@ -280,7 +314,7 @@
                                         <Table.Cell class="flex items-center justify-end">
                                             <Button on:click={() => addToTrip(row.original)} class="flex items-center space-x-4" variant="default">
                                                 <PlusCircle />
-                                                <span> Add to Trip {currentSelectedTrip}</span>
+                                                <span> Add to {trips[currentSelectedTrip]?.name}</span>
                                             </Button>
                                         </Table.Cell>
                                     </Table.Row>
@@ -294,7 +328,7 @@
         </div>
 
         <div class="border rounded-lg">
-            <Accordion.Root value={currentSelectedTrip.toString()}>
+            <Accordion.Root value={currentSelectedTrip} onValueChange={(value) => changeByAccordion(value)}>
                 {#each Object.entries(trips) as [id, {name, weight, children}]}
                     <Accordion.Item value={id}>
                         <Accordion.Trigger class="px-5">{name} </Accordion.Trigger>
@@ -315,7 +349,7 @@
                                                 <Table.Cell>{child.name}</Table.Cell>
                                                 <Table.Cell>{child.weight}</Table.Cell>
                                                 <Table.Cell class="flex items-center justify-end">
-                                                    <Button on:click={() => deleteWeightFromTrip(Number(id), child)} class="flex items-center space-x-4" variant="ghost" size="icon">
+                                                    <Button on:click={() => deleteWeightFromTrip(id, child)} class="flex items-center space-x-4" variant="ghost" size="icon">
                                                         <Trash2 class="text-destructive"/>
                                                     </Button>
                                                 </Table.Cell>
