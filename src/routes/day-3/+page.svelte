@@ -98,18 +98,17 @@
     function slbForAllUsingGreed() {
         const grouped = groupedKnapsack($children_store, 100);
         if (grouped.length) {
-            const allTrips: Record<string, TripData> = {};
+            trips = {};
             tripCount = 0;
             grouped.forEach((group) => {
                 currentSelectedTrip = generateRandomString(10);
                 tripCount += 1;
-                allTrips[currentSelectedTrip] = {
+                trips[currentSelectedTrip] = {
                     name: `Trip ${tripCount}`,
                     children: group.childs,
                     weight: group.totalWeight
                 }
             });
-            trips = allTrips;
             $children_store = [];
             selectedCreatingBecauseIDK = {label: trips[currentSelectedTrip].name, value: currentSelectedTrip}
         }
@@ -158,19 +157,11 @@
     const { headerRows, pageRows, tableAttrs, tableBodyAttrs } = tableModel;
 
     const { pluginStates } = tableModel;
-    const {
-        filterValue
-    }: {
+    const { filterValue }: {
         filterValue: Writable<string>;
     } = pluginStates.filter;
 
-    const {
-        filterValues
-    }: {
-        filterValues: Writable<{
-            tag: string[];
-        }>;
-    } = pluginStates.colFilter;
+    const { filterValues }: { filterValues: Writable<{ tag: string[]; }>; } = pluginStates.colFilter;
 </script>
 
 <div class="grid gap-y-4 px-5">
@@ -301,7 +292,6 @@
                         </Table.Header>
                         <Table.Body {...$tableBodyAttrs}>
                             {#each $pageRows as row (row.id)}
-                                <!--{console.log(row)}-->
                                 <Subscribe rowAttrs={row.attrs()} let:rowAttrs>
                                     <Table.Row {...rowAttrs} class="">
                                         {#each row.cells as cell (cell.id)}
@@ -328,7 +318,7 @@
         </div>
 
         <div class="border rounded-lg">
-            <Accordion.Root value={currentSelectedTrip} onValueChange={(value) => changeByAccordion(value)}>
+            <Accordion.Root bind:value={currentSelectedTrip} onValueChange={(value) => changeByAccordion(value)}>
                 {#each Object.entries(trips) as [id, {name, weight, children}]}
                     <Accordion.Item value={id}>
                         <Accordion.Trigger class="px-5">{name} </Accordion.Trigger>
